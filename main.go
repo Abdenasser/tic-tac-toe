@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 var colors = map[string][2]string{
@@ -40,21 +41,39 @@ func clearOutput() {
 	}
 }
 
-func playTurn(b map[int]string, t int) (map[int]string, int) {
-	var input int
+func isPosOutOfRange(pos int) bool {
+	if pos < 0 || pos > 8 {
+		return true
+	}
+	return false
+}
+
+func isPosChecked(pos int, b map[int]string) bool {
+	if b[pos] == colorize("x", "blue") || b[pos] == colorize("o", "cyan") {
+		return true
+	}
+	return false
+}
+
+func playTurn(b map[int]string, t int) (map[int]string, int, error) {
+	var pos int
 	player := createPlayer(t)
 
 	fmt.Printf("%v chose a position from 0 to 8:\n", player.Name)
-	_, err := fmt.Scanln(&input)
+	_, err := fmt.Scanln(&pos)
 
-	if err != nil || b[input] == colorize("x", "blue") || b[input] == colorize("o", "cyan") {
-		// just return whatever
-		return b, t
+	if err != nil {
+		return b, t, err
 	}
 
-	b[input] = player.Value
+	if isPosChecked(pos, b) || isPosOutOfRange(pos) {
+		// just return whatever
+		return b, t, nil
+	}
+
+	b[pos] = player.Value
 	t += 1
-	return b, t
+	return b, t, nil
 }
 
 func checkWinner(b map[int]string) string {
@@ -82,7 +101,11 @@ func main() {
 	turn := 0
 	for turn < 9 {
 		printBoard(board)
-		board, turn = playTurn(board, turn)
+		var err error
+		board, turn, err = playTurn(board, turn)
+		if err != nil {
+			log.Fatal("Not a valid position ", err)
+		}
 		winner := checkWinner(board)
 		if winner != "none" {
 			clearOutput()
