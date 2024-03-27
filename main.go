@@ -20,11 +20,14 @@ type Player struct {
 	Value string
 }
 
-func createPlayer(t int) Player {
+var player1 = Player{colorize("[Player x]", "blue"), colorize("x", "blue")}
+var player2 = Player{colorize("[Player o]", "cyan"), colorize("o", "cyan")}
+
+func getPlayer(t int) Player {
 	if t%2 == 0 {
-		return Player{colorize("[Player x]", "blue"), colorize("x", "blue")}
+		return player1
 	} else {
-		return Player{colorize("[Player o]", "cyan"), colorize("o", "cyan")}
+		return player2
 	}
 }
 
@@ -57,7 +60,7 @@ func isPosChecked(pos int, b map[int]string) bool {
 
 func playTurn(b map[int]string, t int) (map[int]string, int, error) {
 	var pos int
-	player := createPlayer(t)
+	player := getPlayer(t)
 
 	fmt.Printf("%v chose a position from 0 to 8:\n", player.Name)
 	_, err := fmt.Scanln(&pos)
